@@ -18,12 +18,12 @@ const api = createApi({
         method: "POST",
         body: newPackage,
       }),
-      invalidatesTags: ['create']
+      invalidatesTags: ['create'],
     }),
 
     updatePackage: builder.mutation({
-      query: (newPackage, id) => ({
-        url: `/package/${id}`,
+      query: (newPackage) => ({
+        url: `/package/${newPackage.id}`,
         method: "PUT",
         body: newPackage,
       }),

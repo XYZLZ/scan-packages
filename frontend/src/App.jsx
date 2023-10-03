@@ -1,10 +1,11 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from "react-router-dom"
 import {CSVLink} from 'react-csv'
 import {DeleteIcon, EditIcon, DownloadIcon, AddIcon} from './assets'
-import {useGetAllQuery} from './redux/apiSlice'
+import {useGetAllQuery, useDeletePackageMutation} from './redux/apiSlice'
 import Button from './components/Button'
-
+import Pagination from './components/Pagination'
+import {areYouSureAlert} from './utils/alerts'
 // const mock = [
 //   {
 //     id:1,
@@ -33,16 +34,27 @@ import Button from './components/Button'
 // ]
 function App() {
   const tableRef = useRef(null);
-  const {data, isLoading} = useGetAllQuery();
+  const {data, isLoading, isSuccess} = useGetAllQuery();
+  const [deletePackage] = useDeletePackageMutation();
   const navigate = useNavigate();
-  // console.log(data);
-  if(isLoading) return <p>Cargando...</p>
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const recordsPerPage = 4;
+  const lastIndex = currentPage * recordsPerPage;
+  const firstIndex = lastIndex - recordsPerPage;
+  let records;
+
+  if (isSuccess) {
+      records = data.data?.slice(firstIndex, lastIndex)
+  }
+
+  if(isLoading) return <div className='flex justify-center items-center min-h-screen'><p>Cargando...</p></div>
 
 
   return (
     <>
-    <div className='container w-full md:w-4/5 xl:w-3/5 mx-auto px-2 mt-10'>
-    <main className="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+    <div className='container sm:w-auto  mx-auto px-2 mt-10'>
+    <main className="overflow-auto rounded-lg border border-gray-200 shadow-md">
           <Button text='New' Icon={AddIcon} color={'blue'} onclick={() => navigate('/create')}/>
           {/* <button
       type="button"
@@ -63,7 +75,7 @@ function App() {
       disabled:border-green-300 disabled:bg-green-300 ml-4'>
         <DownloadIcon />
         Export to exel</CSVLink>
-        <table ref={tableRef} id='table' className="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <table ref={tableRef} id='table' className="mt-2 w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead className="bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-4 font-medium text-gray-900">ID</th>
@@ -76,7 +88,7 @@ function App() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-            {data.data?.map(item => (
+            {records?.map(item => (
               <tr className="hover:bg-gray-50" key={item.id}>
               <th className="px-6 py-4 font-medium text-gray-900">{item.id}</th>
               <td className="px-6 py-4">{item.nombre_paquete}</td>
@@ -85,12 +97,15 @@ function App() {
               <td className="px-6 py-4">{item.libra}</td>
               <td className="px-6 py-4">{new Date(item.fecha).toLocaleDateString('es-mx', {month:'long', day: 'numeric', year:'numeric'})}</td>
               <td className="flex justify-end gap-4 px-6 py-4 font-medium">
-              <a  className="text-primary-700 text-red-600 cursor-pointer hover:opacity-80"><DeleteIcon/></a>
-              <a  className="text-primary-700 text-green-600 cursor-pointer hover:opacity-80"><EditIcon/></a>
+              <a  className="text-primary-700 text-red-600 cursor-pointer hover:opacity-80" onClick={() => {
+                areYouSureAlert('Eliminar este recurso?').then(res => {if (res.isConfirmed) deletePackage(item.id)})
+              }}><DeleteIcon/></a>
+              <a  className="text-primary-700 text-green-600 cursor-pointer hover:opacity-80" onClick={() => {navigate(`/create?id=${item.id}`)}}><EditIcon/></a>
               </td>
             </tr>
             ))}
           </tbody>
+          <Pagination data={data.data} currentPage={currentPage} setCurrentPage={setCurrentPage}/>
         </table>
       </main>
     </div>

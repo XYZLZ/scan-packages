@@ -71,11 +71,31 @@ const createPackage = async (req, res) => {
         await packageSchema.parseAsync(req.body);
         const {nombre_paquete, codigo} = req.body;
 
+        let separator;
+        let codigo_peso;
+        let newCode;
+        let libra;
+
         // * separacion de los datos
-        const separator = codigo.split(helper.regex);
-        const codigo_peso = parseInt(separator[2]);
-        const newCode = parseInt(separator[1]);
-        const libra = codigo_peso / 100;
+        if (helper.regex.test(codigo)) {
+            separator = codigo.split(helper.regex);
+            codigo_peso = parseInt(separator[2]);
+            newCode = parseInt(separator[1]);
+            libra = codigo_peso / 100;
+        }else {
+            let newArray = Array.from(codigo);
+            newArray.splice(0, 2);
+            newArray.splice(14, 4);
+            newArray.splice(20, 2);
+            newArray.splice(26, 2);
+            newArray.splice(14, 0, ')');
+            newArray.splice(21, 0, ')');
+            let join = newArray.join('');
+            separator = join.split(')');
+            codigo_peso = parseInt(separator[1]);
+            newCode = parseInt(separator[0]);
+            libra = codigo_peso / 100
+        }
 
 
         const [data] = await conn.query(`insert into ${dbtable} set nombre_paquete = ?, codigo = ?, codigo_peso = ?, libra = ? `, [nombre_paquete, newCode, codigo_peso, libra]);
