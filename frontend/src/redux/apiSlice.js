@@ -3,18 +3,18 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:4000",
+    baseUrl: "/",
     // headers: { "Content-type": "Application/json"},
   }),
   endpoints: (builder) => ({
     getAll: builder.query({
-      query: () => "/get",
+      query: () => "get",
       providesTags: ['create', 'update', 'delete']
     }),
 
     createPackage: builder.mutation({
       query: (newPackage) => ({
-        url: "/package",
+        url: "package",
         method: "POST",
         body: newPackage,
       }),
@@ -23,7 +23,7 @@ const api = createApi({
 
     updatePackage: builder.mutation({
       query: (newPackage) => ({
-        url: `/package/${newPackage.id}`,
+        url: `package/${newPackage.id}`,
         method: "PUT",
         body: newPackage,
       }),
@@ -32,7 +32,7 @@ const api = createApi({
 
     deletePackage: builder.mutation({
       query: (id) => ({
-        url: `/package/${id}`,
+        url: `package/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ['delete']
