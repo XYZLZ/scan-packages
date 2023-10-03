@@ -5,8 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build" :"cd frontend && npm run frontend",
-    "frontend": "npm install && npm run build"
+    "build" :"cd frontend && npm install && npm run build",
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles",
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development node --watch index.js"
