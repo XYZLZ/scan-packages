@@ -137,10 +137,26 @@ const updatePackage = async (req, res) => {
         const {nombre_paquete, codigo} = req.body;
 
         // * separacion de los datos
-        const separator = codigo.split(helper.regex);
-        const codigo_peso = parseInt(separator[2]);
-        const newCode = parseInt(separator[1]);
-        const libra = codigo_peso / 100;
+        // * separacion de los datos
+        if (helper.regex.test(codigo)) {
+            separator = codigo.split(helper.regex);
+            codigo_peso = parseInt(separator[2]);
+            newCode = parseInt(separator[1]);
+            libra = codigo_peso / 100;
+        }else {
+            let newArray = Array.from(codigo);
+            newArray.splice(0, 2);
+            newArray.splice(14, 4);
+            newArray.splice(20, 2);
+            newArray.splice(26, 2);
+            newArray.splice(14, 0, ')');
+            newArray.splice(21, 0, ')');
+            let join = newArray.join('');
+            separator = join.split(')');
+            codigo_peso = parseInt(separator[1]);
+            newCode = parseInt(separator[0]);
+            libra = codigo_peso / 100
+        }
 
 
         const [data] = await conn.query(`update ${dbtable} set nombre_paquete = ?, codigo = ?, codigo_peso = ?, libra = ? where id = ? `, [nombre_paquete, newCode, codigo_peso, libra, id]);
@@ -204,4 +220,62 @@ const deletePackage = async (req, res) => {
     }
 }
 
-export {getAll, createPackage, getById, updatePackage, deletePackage};
+const countPackage = async (req, res) => {
+    const {cantidad, action} = req.body;
+    // console.log(req.body);
+    let currentAction;
+    const {id} = req.params;
+
+    if (!parseInt(id)) {
+        return res.status(400).json({
+            success:false,
+            message: 'se reuqiere el id del recurso' 
+        })
+    }
+
+
+    try {
+
+        const [prevCount] = await conn.query(`Select cantidad from ${dbtable} where id = ?`, [id]);
+
+        if (action) {
+            currentAction = prevCount[0].cantidad + parseInt(cantidad);
+        }else {
+            currentAction = prevCount[0].cantidad - parseInt(cantidad);
+            
+            if (currentAction < 0) {
+                currentAction = 0
+            }
+        }
+
+        const [data] = await conn.query(`update ${dbtable} set cantidad = ? where id = ?`, [currentAction, id]);  
+        
+        if (data.affectedRows > 0) {
+            return res.status(200).json({
+                success:true,
+                data
+            })
+        }
+
+        if (!data[0]) {
+            return res.status(404).json({
+                success:false,
+                message: 'Paquete no encontrado'
+            })
+        }
+
+        return res.status(400).json({
+            success:false,
+            message: 'error al insertar los datos'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Error en el servidor",
+            error
+        })
+    }
+}
+
+export {getAll, createPackage, getById, updatePackage, deletePackage, countPackage};

@@ -3,13 +3,13 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "/",
+    baseUrl: "http://localhost:4000/",
     // headers: { "Content-type": "Application/json"},
   }),
   endpoints: (builder) => ({
     getAll: builder.query({
       query: () => "get",
-      providesTags: ['create', 'update', 'delete']
+      providesTags: ['create', 'update', 'delete', 'count']
     }),
 
     createPackage: builder.mutation({
@@ -37,6 +37,15 @@ const api = createApi({
       }),
       invalidatesTags: ['delete']
     }),
+
+    countPackage: builder.mutation({
+      query: (newCount) => ({
+        url: `package/count/${newCount.id}`,
+        method: 'PUT',
+        body: newCount
+      }),
+      invalidatesTags: ['count']
+    })
   }),
 });
 
@@ -45,5 +54,6 @@ export const {
   useCreatePackageMutation,
   useDeletePackageMutation,
   useUpdatePackageMutation,
+  useCountPackageMutation
 } = api;
 export default api;

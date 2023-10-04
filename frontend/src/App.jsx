@@ -2,10 +2,11 @@ import { useRef, useState } from 'react'
 import { useNavigate } from "react-router-dom"
 import {CSVLink} from 'react-csv'
 import {DeleteIcon, EditIcon, DownloadIcon, AddIcon} from './assets'
-import {useGetAllQuery, useDeletePackageMutation} from './redux/apiSlice'
+import {useGetAllQuery, useDeletePackageMutation, useCountPackageMutation} from './redux/apiSlice'
 import Button from './components/Button'
 import Pagination from './components/Pagination'
-import {areYouSureAlert} from './utils/alerts'
+import {areYouSureAlert, inputAlert} from './utils/alerts'
+import Swal from 'sweetalert2'
 // const mock = [
 //   {
 //     id:1,
@@ -36,6 +37,7 @@ function App() {
   const tableRef = useRef(null);
   const {data, isLoading, isSuccess} = useGetAllQuery();
   const [deletePackage] = useDeletePackageMutation();
+  const [updateCount] = useCountPackageMutation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -83,6 +85,7 @@ function App() {
               <th scope="col" className="px-6 py-4 font-medium text-gray-900">Codigo</th>
               <th scope="col" className="px-6 py-4 font-medium text-gray-900">Codigo_peso</th>
               <th scope="col" className="px-6 py-4 font-medium text-gray-900">Libra</th>
+              <th scope="col" className="px-6 py-4 font-medium text-gray-900">Cantidad</th>
               <th scope="col" className="px-6 py-4 font-medium text-gray-900">Fecha</th>
               <th scope="col" className="px-6 py-4 font-medium text-gray-900" >Acciones</th>
             </tr>
@@ -95,12 +98,33 @@ function App() {
               <td className="px-6 py-4">{item.codigo}</td>
               <td className="px-6 py-4">{item.codigo_peso}</td>
               <td className="px-6 py-4">{item.libra}</td>
+              <td className="px-6 py-4">{item.cantidad}</td>
               <td className="px-6 py-4">{new Date(item.fecha).toLocaleDateString('es-mx', {month:'long', day: 'numeric', year:'numeric'})}</td>
               <td className="flex justify-end gap-4 px-6 py-4 font-medium">
               <a  className="text-primary-700 text-red-600 cursor-pointer hover:opacity-80" onClick={() => {
                 areYouSureAlert('Eliminar este recurso?').then(res => {if (res.isConfirmed) deletePackage(item.id)})
               }}><DeleteIcon/></a>
               <a  className="text-primary-700 text-green-600 cursor-pointer hover:opacity-80" onClick={() => {navigate(`/create?id=${item.id}`)}}><EditIcon/></a>
+              <a  className="text-primary-700 text-blue-600 cursor-pointer hover:opacity-80" onClick={()=>{
+                inputAlert('Agregar o quitar cantidad', 'Agregue o quite la cantidad del producto', 'number', 'Enviar').then(data => {
+                  if (data.isConfirmed) {
+                    const value = data.value;
+                    Swal.fire({
+                      title: 'Quieres incrementar o decrementar esta cantidad ?',
+                      showDenyButton: true,
+                      showCancelButton: true,
+                      confirmButtonText: 'Incrementar',
+                      denyButtonText: `Decrementar`,
+                    }).then(res => {
+                      if (res.isConfirmed) {
+                        updateCount({cantidad:value, id:item.id, action:true});
+                      }else if (res.isDenied) {
+                        updateCount({cantidad:value, id:item.id, action:false});
+                      }
+                    })
+                  }
+                })
+              }}><AddIcon/></a>
               </td>
             </tr>
             ))}

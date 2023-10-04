@@ -22,6 +22,7 @@ app.get("/get", packageController.getAll);
 app.get('/get/:id', packageController.getById);
 app.post('/package', packageController.createPackage);
 app.put('/package/:id', packageController.updatePackage);
+app.put('/package/count/:id', packageController.countPackage);
 app.delete('/package/:id', packageController.deletePackage);
 
 // * archivos estaticos 
