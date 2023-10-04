@@ -25,7 +25,7 @@ app.put('/package/:id', packageController.updatePackage);
 app.delete('/package/:id', packageController.deletePackage);
 
 // * archivos estaticos 
-app.use(express.static(join(__dirname, 'frontend', 'dist')));
+app.use(express.static(join(__dirname, 'dist')));
 
 // * start server
 
