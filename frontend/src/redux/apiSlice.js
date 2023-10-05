@@ -9,7 +9,7 @@ const api = createApi({
   endpoints: (builder) => ({
     getAll: builder.query({
       query: () => "get",
-      providesTags: ['create', 'update', 'delete', 'count']
+      providesTags: ['create', 'update', 'delete', 'count', 'weight']
     }),
 
     createPackage: builder.mutation({
@@ -45,6 +45,15 @@ const api = createApi({
         body: newCount
       }),
       invalidatesTags: ['count']
+    }),
+
+    weightPackage: builder.mutation({
+      query: (newWeight) => ({
+        url: `package/weight/${newWeight.id}`,
+        method: 'PUT',
+        body: newWeight
+      }),
+      invalidatesTags: ['weight']
     })
   }),
 });
@@ -54,6 +63,7 @@ export const {
   useCreatePackageMutation,
   useDeletePackageMutation,
   useUpdatePackageMutation,
-  useCountPackageMutation
+  useCountPackageMutation,
+  useWeightPackageMutation
 } = api;
 export default api;

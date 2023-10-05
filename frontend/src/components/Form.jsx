@@ -2,8 +2,8 @@ import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import useScanDetection from 'use-scan-detection-react18'
 
-import {useCreatePackageMutation, useUpdatePackageMutation} from '../redux/apiSlice'
-import {SuccessAlert} from '../utils/alerts'
+import {useCreatePackageMutation, useUpdatePackageMutation, useWeightPackageMutation} from '../redux/apiSlice'
+import {SuccessAlert, inputAlert} from '../utils/alerts'
 
 
 const Form = () => {
@@ -11,6 +11,7 @@ const Form = () => {
     const [searchParams] = useSearchParams();
     const [createPackage] = useCreatePackageMutation()
     const [updatePackage] = useUpdatePackageMutation()
+    const [updateWeight] = useWeightPackageMutation()
     const [inputs, setInputs] = useState({codigo:'', nombre_paquete: ''});
     const [isUpdate, setIsUpdate] = useState(false);
     const [code, setCode] = useState(false);
@@ -27,23 +28,49 @@ const Form = () => {
         }
         if (isUpdate) {
           const payload = await updatePackage({codigo:inputs.codigo.toString(), nombre_paquete:inputs.nombre_paquete.toString(), id: parseInt(id)},)
-          SuccessAlert('Updated Package', 'Paquete actualizado correctamente', 'success', 2000);
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
+
+          if (payload.data) {
+            const options = payload.data.weightOptions.map(item => item / 100);
+
+            inputAlert('Elige el peso correcto del paquete', `1-(${options[0]}), 2-(${options[1]}), 3-(${options[2]})`, 'text', 'Enviar').then(async res => {
+              if (res.isConfirmed) {
+                if(res.value == '1') await updateWeight({weight: payload.data.weightOptions[0], id})
+                if(res.value == '2') await updateWeight({weight: payload.data.weightOptions[1], id})
+                if(res.value == '3') await updateWeight({weight: payload.data.weightOptions[2], id})
+                if(res.value > '3' || res.value < 0 || !parseInt(res.value)) return SuccessAlert('Error', 'Solo colocar el numero opcion (1,2,3)', 'error', 5000);
+                SuccessAlert('Updated Package', 'Paquete actualizado correctamente', 'success', 2000);
+                setTimeout(() => {
+                  navigate('/');
+                }, 2000);
+              }
+            })
+          }
         console.log(payload);
         return true
         }
 
 
         const payload = await createPackage({codigo:inputs.codigo.toString(), nombre_paquete:inputs.nombre_paquete.toString()});
-        SuccessAlert('Created Package', 'Paquete creado correctamente', 'success', 2000);
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
+        if (payload.data) {
+          const options = payload.data.weightOptions.map(item => item / 100);
+
+          inputAlert('Elige el peso correcto del paquete', `1-(${options[0]}), 2-(${options[1]}), 3-(${options[2]})`, 'text', 'Enviar').then(async res => {
+            if (res.isConfirmed) {
+              if(res.value == '1') await updateWeight({weight: payload.data.weightOptions[0], id: payload.data.newId})
+              if(res.value == '2') await updateWeight({weight: payload.data.weightOptions[1], id: payload.data.newId})
+              if(res.value == '3') await updateWeight({weight: payload.data.weightOptions[2], id: payload.data.newId})
+              if(res.value > '3' || res.value < 0 || !parseInt(res.value)) return SuccessAlert('Error', 'Solo colocar el numero opcion (1,2,3)', 'error', 5000);
+              SuccessAlert('Updated Package', 'Paquete actualizado correctamente', 'success', 2000);
+              setTimeout(() => {
+                navigate('/');
+              }, 2000);
+            }
+          })
+        }
         console.log(payload);
     }
 
+    // * detectar el scaner 
     useScanDetection({
       onComplete: setCode,
       onError: error => console.log(error),

@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from "react-router-dom"
-import {CSVLink} from 'react-csv'
+// import {CSVLink} from 'react-csv'
 import {DeleteIcon, EditIcon, DownloadIcon, AddIcon} from './assets'
 import {useGetAllQuery, useDeletePackageMutation, useCountPackageMutation} from './redux/apiSlice'
 import Button from './components/Button'
 import Pagination from './components/Pagination'
 import {areYouSureAlert, inputAlert} from './utils/alerts'
 import Swal from 'sweetalert2'
+import 'table2excel';
 // const mock = [
 //   {
 //     id:1,
@@ -39,6 +40,9 @@ function App() {
   const [deletePackage] = useDeletePackageMutation();
   const [updateCount] = useCountPackageMutation();
   const navigate = useNavigate();
+
+  const Table2Excel = window.Table2Excel;
+  const table2excel = new Table2Excel();
   const [currentPage, setCurrentPage] = useState(1);
 
   const recordsPerPage = 4;
@@ -58,25 +62,25 @@ function App() {
     <div className='container sm:w-auto  mx-auto px-2 mt-10'>
     <main className="overflow-auto rounded-lg border border-gray-200 shadow-md">
           <Button text='New' Icon={AddIcon} color={'blue'} onclick={() => navigate('/create')}/>
-          {/* <button
+          <button
       type="button"
       className={`inline-flex items-center gap-1.5 rounded-lg border border-green-500
       bg-green-500 px-5 py-2.5 text-center text-sm font-medium
     text-white shadow-sm transition-all hover:border-green-700
       hover:bg-green-700 focus:ring focus:ring-green-200 disabled:cursor-not-allowed 
       disabled:border-green-300 disabled:bg-green-300 ml-4`}
-      onClick={()=>{}}
+      onClick={()=>{table2excel.export(document.getElementById('table'))}}
     >
       <DownloadIcon />
-      Download
-    </button> */}
-    <CSVLink data={data.data} className='inline-flex items-center gap-1.5 rounded-lg border border-green-500
+      Download to exel
+    </button>
+    {/* <CSVLink data={data.data} className='inline-flex items-center gap-1.5 rounded-lg border border-green-500
       bg-green-500 px-5 py-2.5 text-center text-sm font-medium
     text-white shadow-sm transition-all hover:border-green-700
       hover:bg-green-700 focus:ring focus:ring-green-200 disabled:cursor-not-allowed 
       disabled:border-green-300 disabled:bg-green-300 ml-4'>
         <DownloadIcon />
-        Export to exel</CSVLink>
+        Export to exel</CSVLink> */}
         <table ref={tableRef} id='table' className="mt-2 w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead className="bg-gray-50">
             <tr>
