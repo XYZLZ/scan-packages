@@ -1,14 +1,13 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from "react-router-dom"
-// import {CSVLink} from 'react-csv'
-import Exeljs from 'exceljs'
+import Swal from 'sweetalert2'
+
 import {DeleteIcon, EditIcon, DownloadIcon, AddIcon} from './assets'
 import {useGetAllQuery, useDeletePackageMutation, useCountPackageMutation} from './redux/apiSlice'
 import Button from './components/Button'
 import Pagination from './components/Pagination'
 import {areYouSureAlert, inputAlert} from './utils/alerts'
-import Swal from 'sweetalert2'
-import 'table2excel';
+import exportToExel from './utils/exportExel'
 // const mock = [
 //   {
 //     id:1,
@@ -37,13 +36,13 @@ import 'table2excel';
 // ]
 
 const sheetHeaders = [
-  { label: "ID", key: "id" },
-  { label: "Nombre Paquete", key: "nombre_paquete" },
-  { label: "Codigo", key: "codigo" },
-  { label: "Codigo Peso", key: "codigo_peso" },
-  { label: "Libra", key: "libra" },
-  { label: "Cantidad", key: "cantidad" },
-  { label: "Fecha", key: "fecha" }
+  { header: "ID", key: "id", width:5 },
+  { header: "Nombre Paquete", key: "nombre_paquete", width:20 },
+  { header: "Codigo", key: "codigo", width:15 },
+  { header: "Codigo Peso", key: "codigo_peso", width:20 },
+  { header: "Libra", key: "libra", width:9 },
+  { header: "Cantidad", key: "cantidad", width:9 },
+  { header: "Fecha", key: "fecha", width:20 }
 ];
 
 function App() {
@@ -66,6 +65,7 @@ function App() {
       records = data.data?.slice(firstIndex, lastIndex)
   }
 
+
   if(isLoading) return <div className='flex justify-center items-center min-h-screen'><p>Cargando...</p></div>
 
 
@@ -81,7 +81,7 @@ function App() {
     text-white shadow-sm transition-all hover:border-green-700
       hover:bg-green-700 focus:ring focus:ring-green-200 disabled:cursor-not-allowed 
       disabled:border-green-300 disabled:bg-green-300 ml-4`}
-      onClick={()=>{table2excel.export(document.getElementById('table'))}}
+      onClick={() => exportToExel({data:data.data, sheetHeaders})}
     >
       <DownloadIcon />
       Download to exel

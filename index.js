@@ -1,7 +1,7 @@
 import express from "express";
 import { config } from "dotenv";
 import cors from "cors";
-import {join, dirname} from 'node:path'
+import {join, dirname, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
 import * as packageController from "./controllers/index.controller.js";
@@ -26,11 +26,25 @@ app.put('/package/count/:id', packageController.countPackage);
 app.put('/package/weight/:id', packageController.weightUpdate);
 app.delete('/package/:id', packageController.deletePackage);
 
-// * archivos estaticos 
-app.use(express.static(join(__dirname, 'dist')));
+
+
+
+if (process.env.NODE_ENV == 'production') {
+  // * archivos estaticos 
+  app.use(express.static(join(__dirname, 'dist')));
+  app.get('*', (req, res)=>{
+      res.sendFile(resolve(__dirname, "dist", "index.html"))
+  })
+
+}
+
+app.use((req, res, next) => {
+  res.send('Resourse not found');
+  
+  next();
+})
 
 // * start server
-
 const server = app.listen(port, () => {
   console.log(`app listening on port ${port}`);
   console.log(join(__dirname, 'public'));
