@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from "react-router-dom"
 // import {CSVLink} from 'react-csv'
+import Exeljs from 'exceljs'
 import {DeleteIcon, EditIcon, DownloadIcon, AddIcon} from './assets'
 import {useGetAllQuery, useDeletePackageMutation, useCountPackageMutation} from './redux/apiSlice'
 import Button from './components/Button'
@@ -34,6 +35,17 @@ import 'table2excel';
 //     fecha: '28 nov, 2023'
 //   },
 // ]
+
+const sheetHeaders = [
+  { label: "ID", key: "id" },
+  { label: "Nombre Paquete", key: "nombre_paquete" },
+  { label: "Codigo", key: "codigo" },
+  { label: "Codigo Peso", key: "codigo_peso" },
+  { label: "Libra", key: "libra" },
+  { label: "Cantidad", key: "cantidad" },
+  { label: "Fecha", key: "fecha" }
+];
+
 function App() {
   const tableRef = useRef(null);
   const {data, isLoading, isSuccess} = useGetAllQuery();
@@ -41,8 +53,8 @@ function App() {
   const [updateCount] = useCountPackageMutation();
   const navigate = useNavigate();
 
-  const Table2Excel = window.Table2Excel;
-  const table2excel = new Table2Excel();
+  // const Table2Excel = window.Table2Excel;
+  // const table2excel = new Table2Excel();
   const [currentPage, setCurrentPage] = useState(1);
 
   const recordsPerPage = 4;
@@ -74,7 +86,7 @@ function App() {
       <DownloadIcon />
       Download to exel
     </button>
-    {/* <CSVLink data={data.data} className='inline-flex items-center gap-1.5 rounded-lg border border-green-500
+    {/* <CSVLink data={data.data} headers={sheetHeaders}  className='inline-flex items-center gap-1.5 rounded-lg border border-green-500
       bg-green-500 px-5 py-2.5 text-center text-sm font-medium
     text-white shadow-sm transition-all hover:border-green-700
       hover:bg-green-700 focus:ring focus:ring-green-200 disabled:cursor-not-allowed 
