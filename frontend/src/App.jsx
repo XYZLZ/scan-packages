@@ -1,39 +1,15 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, lazy } from 'react'
 import { useNavigate } from "react-router-dom"
 import Swal from 'sweetalert2'
 
-import {DeleteIcon, EditIcon, DownloadIcon, AddIcon} from './assets'
+
+import {DeleteIcon, EditIcon, DownloadIcon, AddIcon, Spiner} from './assets'
 import {useGetAllQuery, useDeletePackageMutation, useCountPackageMutation} from './redux/apiSlice'
-import Button from './components/Button'
-import Pagination from './components/Pagination'
+
+const Button = lazy(() => import('./components/Button'));
+const Pagination = lazy(() => import('./components/Pagination'));
 import {areYouSureAlert, inputAlert} from './utils/alerts'
 import exportToExel from './utils/exportExel'
-// const mock = [
-//   {
-//     id:1,
-//     paquete: 'paquete1',
-//     codigo: 12331231231,
-//     codigo_peso: 123,
-//     libra: 12.3,
-//     fecha: '28 nov, 2023'
-//   },
-//   {
-//     id:2,
-//     paquete: 'paquete3',
-//     codigo: 12331231231,
-//     codigo_peso: 1123,
-//     libra: 112.3,
-//     fecha: '28 nov, 2023'
-//   },
-//   {
-//     id:3,
-//     paquete: 'paquete2',
-//     codigo: 12331231231,
-//     codigo_peso: 1232,
-//     libra: 123.2,
-//     fecha: '28 nov, 2023'
-//   },
-// ]
 
 const sheetHeaders = [
   { header: "ID", key: "id", width:5 },
@@ -66,7 +42,9 @@ function App() {
   }
 
 
-  if(isLoading) return <div className='flex justify-center items-center min-h-screen'><p>Cargando...</p></div>
+  if(isLoading) return <div className='flex justify-center items-center min-h-screen'>
+    <Spiner/>
+  </div>
 
 
   return (
@@ -86,13 +64,6 @@ function App() {
       <DownloadIcon />
       Download to exel
     </button>
-    {/* <CSVLink data={data.data} headers={sheetHeaders}  className='inline-flex items-center gap-1.5 rounded-lg border border-green-500
-      bg-green-500 px-5 py-2.5 text-center text-sm font-medium
-    text-white shadow-sm transition-all hover:border-green-700
-      hover:bg-green-700 focus:ring focus:ring-green-200 disabled:cursor-not-allowed 
-      disabled:border-green-300 disabled:bg-green-300 ml-4'>
-        <DownloadIcon />
-        Export to exel</CSVLink> */}
         <table ref={tableRef} id='table' className="mt-2 w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead className="bg-gray-50">
             <tr>

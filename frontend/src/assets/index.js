@@ -1,3 +1,3 @@
-import {DeleteIcon, EditIcon, DownloadIcon, AddIcon} from './icons'
+import {DeleteIcon, EditIcon, DownloadIcon, AddIcon, Spiner} from './icons'
 
-export {DeleteIcon, EditIcon, DownloadIcon, AddIcon};
+export {DeleteIcon, EditIcon, DownloadIcon, AddIcon, Spiner};

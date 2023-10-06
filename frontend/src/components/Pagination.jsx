@@ -52,7 +52,7 @@ const Pagination = ({ data, currentPage, setCurrentPage }) => {
               <b className="ml-1">{numbers.length}</b>
             </span>
           </li>
-          {currentPage !== lastIndex && (
+          {currentPage !== numbers.length && (
             <li>
               <a
                 onClick={nextPage}
